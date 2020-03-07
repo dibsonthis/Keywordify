@@ -19,10 +19,6 @@ def start_thread(target):
     thread = threading.Thread(target=target)
     thread.start()
     return thread
-
-def end_thread():
-    global stop_event
-    stop_event.set()
     
 def get_font(family='Helvetica', size=14, weight='normal'):
     return font.Font(family=family, size=size, weight=weight)
@@ -52,8 +48,8 @@ def convert_keywords_to_KeyWord_Objects():
 
 def add_keyword_and_value():
     global keywords
-    global stop_event
     global keyboard_listener
+    keyboard_listener.recent_input = []
     new_keyword_text = new_keyword.get()
     new_value_text = new_value.get("1.0", tk.END)
     # Remove newline that the text box randomly adds to the end of the string
@@ -61,20 +57,13 @@ def add_keyword_and_value():
     update_keyword_json(new_keyword_text, new_value_text)
     add_confirmation_label.config(text='Keyword Added')
     keywords = convert_keywords_to_KeyWord_Objects()
-    print(keywords)
-    # stop_keyboard_listener(keyboard_listener)
-    # keyboard_listener = start_keyboard_listener()
-    # return keyboard_listener
     keyboard_listener.keywords = keywords
+    return keyboard_listener
 
 def start_keyboard_listener():
     keyboard_listener = KeyboardListener(keywords=keywords)
     keyboard_listener_thread = start_thread(target=keyboard_listener.run)
     return keyboard_listener
-
-def stop_keyboard_listener(keyboard_listener):
-    keyboard_listener.exit_event = True
-    keyboard.press(Key.esc)
     
 
 ### Setup ###
@@ -98,22 +87,22 @@ alert_font = get_font('Arial', 11, 'bold')
 
 ### Frames ###
 
-left_frame = tk.Frame(root, height=200, width=200, bg='blue')
+left_frame = tk.Frame(root, height=200, width=200)
 left_frame.grid_propagate(0)
 
-right_frame = tk.Frame(root, height=200, width=400, bg='red')
-right_frame.grid_propagate(0)
+right_frame = tk.Frame(root, height=200, width=300)
+# right_frame.grid_propagate(0)
 
 ### Labels ###
 
-new_keyword_label = tk.Label(left_frame, text='Add New Label', font=header_font)
+new_keyword_label = tk.Label(left_frame, text='New Keyword', font=header_font)
 new_value_label = tk.Label(right_frame, text='New Keyword Value', font=header_font)
-add_confirmation_label = tk.Label(left_frame, text='', font=alert_font, fg='red')
+add_confirmation_label = tk.Label(left_frame, text='', font=alert_font, fg='green')
 
 ### Inputs ###
 
 new_keyword = tk.Entry(left_frame, font=text_font)
-new_value = tk.Text(right_frame, font=text_font)
+new_value = tk.Text(right_frame, font=text_font, width=50, height=20)
 
 ### Buttons ###
 
@@ -131,7 +120,7 @@ add_confirmation_label.grid(row=4, column=0, pady=(20,0))
 
 right_frame.grid(row=0, column=1, padx=5, pady=5)
 
-new_value_label.grid(row=0, column=0, sticky='nw')
+new_value_label.grid(row=0, column=0, sticky='nsew')
 new_value.grid(row=1, column=0, pady=(10,0))
 
 ### Run Loop ###

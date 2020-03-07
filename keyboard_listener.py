@@ -1,5 +1,5 @@
 from pynput.keyboard import Key, Listener, KeyCode
-from functions import value, key_string, activate_special_key_if_pressed, deactivate_special_key_if_released, combo, current_key, is_special_key_pressed, release_all_special_keys, recent_input
+from functions import value, key_string, activate_special_key_if_pressed, deactivate_special_key_if_released, combo, current_key, is_special_key_pressed, release_all_special_keys
 
 combos = {}
 keywords = {}
@@ -9,15 +9,16 @@ class KeyboardListener:
         self.combos = combinations
         self.keywords = keywords
         self.keyboard_listener_thread = Listener(on_press=self.on_press, on_release=self.on_release)
+        self.recent_input = []
 
     def on_press(self, key):
         key = key_string(key)
         global current_key
         global is_special_key_pressed
-        global recent_input
-        recent_input.append(key)
-        if len(recent_input) > 250:
-            recent_input.pop(0)
+        # global recent_input
+        self.recent_input.append(key)
+        if len(self.recent_input) > 250:
+            self.recent_input.pop(0)
         current_key = key
         activate_special_key_if_pressed(key)
         for combination in self.combos.values():
@@ -25,17 +26,17 @@ class KeyboardListener:
                 release_all_special_keys()
                 combination.execute()
         for keyword in self.keywords.values():
-            joined_recent_input = ''.join(recent_input)
+            joined_recent_input = ''.join(self.recent_input)
             if keyword.joined_string_list in joined_recent_input:
-                recent_input = []
+                self.recent_input = []
                 keyword.execute()
         
 
     def on_release(self, key):
         key = key_string(key)
         deactivate_special_key_if_released(key)
-        # if key == 'esc':
-        #     return False
+        if key == 'esc':
+            return False
 
     def run(self, on_press = on_press, on_release = on_release):
         with self.keyboard_listener_thread as l:
