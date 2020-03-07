@@ -39,6 +39,15 @@ def replace(old, new):
     delete(old)
     paste_text()
 
+def eval_replace(old, new):
+    try:
+        new = str(eval(new))
+    except:
+        new = new
+    copy_to_clipboard(new)
+    delete(old)
+    paste_text()
+
 def split_string(string, ls='\n', l='\t', s=' '):
     lines = string.split(ls)
     for line_index, line in enumerate(lines):

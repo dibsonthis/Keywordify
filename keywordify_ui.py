@@ -1,7 +1,7 @@
 import tkinter as tk
 import tkinter.font as font
 from keyboard_listener import KeyboardListener, KeyWord
-from replace_functions import replace
+from replace_functions import replace, eval_replace
 import json
 import os
 import threading
@@ -43,7 +43,7 @@ def convert_keywords_to_KeyWord_Objects():
         keywords = json.load(file)
     keyword_objects = {}
     for keyword, value in keywords.items():
-        keyword_objects[keyword] = KeyWord(keyword, replace, keyword, value)
+        keyword_objects[keyword] = KeyWord(keyword, eval_replace, keyword, value)
     return keyword_objects
 
 def add_keyword_and_value():
@@ -77,6 +77,8 @@ root.wm_attributes("-topmost", 1)
 create_keywords_json()
 
 keywords = convert_keywords_to_KeyWord_Objects()
+
+print(keywords)
 
 ### Styles ###
 
