@@ -43,7 +43,7 @@ def convert_keywords_to_KeyWord_Objects():
         keywords = json.load(file)
     keyword_objects = {}
     for keyword, value in keywords.items():
-        keyword_objects[keyword] = KeyWord(keyword, eval_replace, keyword, value)
+        keyword_objects[keyword] = KeyWord(keyword, replace, keyword, value)
     return keyword_objects
 
 def add_keyword_and_value():
