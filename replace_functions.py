@@ -48,14 +48,18 @@ def eval_replace(old, new):
     delete(old)
     paste_text()
 
-def exec_replace(old, new):
+def exec_replace(keyword, function):
     try:
-        new = str(exec(new))
+        exec(function)
+        delete(keyword)
+        keyword = keyword.replace('\n','')
+        print(f'{keyword} executed')
     except:
-        new = new
-    copy_to_clipboard(new)
-    delete(old)
-    paste_text()
+        copy_to_clipboard(function)
+        delete(keyword)
+        paste_text()
+        print(f'Cannot execute {keyword} - replacement made instead')
+        print(f'Error in function:\n\n{function}')
 
 def split_string(string, ls='\n', l='\t', s=' '):
     lines = string.split(ls)

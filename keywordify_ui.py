@@ -45,7 +45,10 @@ def convert_keywords_to_KeyWord_Objects():
     keyword_objects = {}
     for keyword, value in keywords.items():
         # Instead of executing the replacement as soon as the input is entered, it is executed after the input + enter is pressed
-        keyword_objects[keyword] = KeyWord(keyword + 'enter', replace, keyword + '\n', value)
+        if value[1] == "text":
+            keyword_objects[keyword] = KeyWord(keyword + 'enter', replace, keyword + '\n', value[0])
+        elif value[1] == "function":
+            keyword_objects[keyword] = KeyWord(keyword + 'enter', exec_replace, keyword + '\n', value[0])
     return keyword_objects
 
 def add_keyword_and_value():
@@ -53,6 +56,7 @@ def add_keyword_and_value():
     global keyboard_listener
     new_keyword_text = new_keyword.get()
     new_value_text = new_value.get("1.0", tk.END)
+    new_value_type = value_type_variable.get()
     # Remove newline that the text box randomly adds to the end of the string
     new_value_text = new_value_text[:-1]
     if not new_keyword_text:
@@ -61,6 +65,7 @@ def add_keyword_and_value():
     if not new_value_text:
         add_confirmation_label.config(text='Please Enter Value', fg='red')
         return
+    new_value_text = [new_value_text, new_value_type]
     keyboard_listener.recent_input = []
     update_keyword_json(new_keyword_text, new_value_text)
     add_confirmation_label.config(text='Keyword Added', fg='green')
@@ -84,10 +89,12 @@ def toggle_frame(frame, **kwargs):
         toggle_frame_btn.config(text='Hide Frame')
 
 def text_radio_command():
-    new_value.config(bg='white', fg='black')
+    new_value.config(bg='white', fg='black', insertbackground='black')
+    print(value_type_variable.get())
 
 def function_radio_command():
-    new_value.config(bg='black', fg='white')
+    new_value.config(bg='black', fg='white', insertbackground='white')
+    print(value_type_variable.get())
 
 ### Setup ###
 
@@ -133,7 +140,7 @@ new_value = tk.Text(right_frame, font=text_font, width=50, height=20)
 
 ### Buttons ###
 
-create_keyword_btn = tk.Button(left_frame, text='Create', font=button_font, command=add_keyword_and_value)
+create_keyword_btn = tk.Button(left_frame, text='Create', font=button_font, command=add_keyword_and_value, bg='green', fg='white')
 toggle_frame_btn = tk.Button(left_frame, text='Hide Right Frame', font=button_font, command= lambda: toggle_frame(right_frame, row=0, column=1, padx=5, pady=5))
 
 value_type_text_radio = tk.Radiobutton(left_frame, text='Text', variable=value_type_variable, value='text', font=text_font, indicatoron=0, command=text_radio_command)
