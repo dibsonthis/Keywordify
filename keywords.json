@@ -1,1 +1,1 @@
-{"-test": ["[x for x in range(10)]", "function"], "-t": ["for i in range(10):\n\tif i % 2 == 0:\n\t\tprint(i)", "function"], "-hello": ["def a()\n\tprint(hi)\n\na()", "function"]}
+{"-test": ["TEST", "text"]}

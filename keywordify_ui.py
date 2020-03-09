@@ -71,6 +71,7 @@ def add_keyword_and_value():
     add_confirmation_label.config(text='Keyword Added', fg='green')
     keywords = convert_keywords_to_KeyWord_Objects()
     keyboard_listener.keywords = keywords
+    update_current_keywords_frame()
     return keyboard_listener
 
 def start_keyboard_listener():
@@ -95,6 +96,29 @@ def text_radio_command():
 def function_radio_command():
     new_value.config(bg='black', fg='white', insertbackground='white')
     print(value_type_variable.get())
+
+def update_current_keywords_frame():
+    # Clears the frame
+    for widget in current_keywords_frame.winfo_children():
+        widget.destroy()
+    # Updates frame
+    with open('keywords.json') as file:
+        current_keywords = json.load(file)
+    for current_keyword, value in current_keywords.items():
+        if value[1] == "function":
+            tk.Button(current_keywords_frame, text=f'{current_keyword}', fg='red', font=text_font, command= lambda current_keyword = current_keyword: edit_keyword(current_keyword)).grid(sticky='nsew')
+        elif value[1] == "text":
+            tk.Button(current_keywords_frame, text=f'{current_keyword}', fg='blue', font=text_font, command= lambda current_keyword = current_keyword: edit_keyword(current_keyword)).grid(sticky='nsew')
+
+def edit_keyword(keyword):
+    with open('keywords.json') as file:
+        current_keywords = json.load(file)
+    value = current_keywords[keyword]
+    new_keyword.delete(0,tk.END)
+    new_keyword.insert(0,keyword)
+    new_value.delete("1.0",tk.END)
+    new_value.insert("1.0",value)
+    print(keyword)
 
 ### Setup ###
 
@@ -127,11 +151,17 @@ left_frame = tk.Frame(root, height=200, width=200)
 
 right_frame = tk.Frame(root, height=200, width=300)
 
+current_keywords_container_frame = tk.Frame(root, height=200, width=200)
+
+current_keywords_frame = tk.Frame(current_keywords_container_frame, height=200, width=200)
+
 ### Labels ###
 
 new_keyword_label = tk.Label(left_frame, text='New Keyword', font=header_font)
 new_value_label = tk.Label(right_frame, text='New Keyword Value', font=header_font)
 add_confirmation_label = tk.Label(left_frame, text='', font=alert_font, fg='green')
+value_type_label = tk.Label(left_frame, text='Choose Value Type', font=header_font)
+current_keywords_label = tk.Label(current_keywords_container_frame, text='Current Keywords', font=header_font)
 
 ### Inputs ###
 
@@ -153,14 +183,15 @@ left_frame.grid(row=0, column=0, padx=5, pady=5, sticky='nsew')
 new_keyword_label.grid(row=1, column=0)
 new_keyword.grid(row=2, column=0, pady=(10,0))
 
-create_keyword_btn.grid(row=3,column=0, pady=(10,0), sticky='nsew')
-
+value_type_label.grid(row=3, column=0, pady=(10,0), sticky='nsew')
 value_type_text_radio.grid(row=4, column=0, pady=(10,0), sticky='nsew')
 value_type_text_radio.select()
 value_type_function_radio.grid(row=5, column=0, sticky='nsew')
 value_type_function_radio.deselect()
 
-add_confirmation_label.grid(row=6, column=0, pady=(20,0))
+create_keyword_btn.grid(row=6,column=0, pady=(10,0), sticky='nsew')
+
+add_confirmation_label.grid(row=7, column=0, pady=(20,0))
 
 
 right_frame.grid(row=0, column=1, padx=5, pady=5)
@@ -168,6 +199,14 @@ right_frame.visible = False
 
 new_value_label.grid(row=0, column=0, sticky='nsew')
 new_value.grid(row=1, column=0, pady=(10,0))
+
+
+current_keywords_container_frame.grid(row=0, column=2, padx=5, pady=5, sticky='nsew')
+current_keywords_label.grid(row=0, column=0)
+
+current_keywords_frame.grid(row=1, column=0, padx=5, pady=(20,0))
+
+update_current_keywords_frame()
 
 ### Run Loop ###
 
