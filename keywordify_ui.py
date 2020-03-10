@@ -153,7 +153,7 @@ def delete_keyword():
 root = tk.Tk()
 
 root.title("Keywordify")
-root.wm_attributes("-topmost", 1)
+# root.wm_attributes("-topmost", 1)
 
 # Create keywords.json if it doesn't already exist
 create_keywords_json()
