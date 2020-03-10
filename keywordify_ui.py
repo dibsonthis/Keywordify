@@ -105,14 +105,16 @@ def update_current_keywords_frame():
         current_keywords = json.load(file)
     for current_keyword, value in current_keywords.items():
         if value[1] == "function":
-            # tk.Button(current_keywords_frame, text=f'{current_keyword}', fg='red', font=text_font, command= lambda current_keyword = current_keyword: edit_keyword(current_keyword)).grid(sticky='nsew')
             current_keywords_frame.insert(tk.END, current_keyword)
         elif value[1] == "text":
-            # tk.Button(current_keywords_frame, text=f'{current_keyword}', fg='blue', font=text_font, command= lambda current_keyword = current_keyword: edit_keyword(current_keyword)).grid(sticky='nsew')
             current_keywords_frame.insert(tk.END, current_keyword)
 
 def edit_keyword():
-    keyword = current_keywords_frame.get(current_keywords_frame.curselection())
+    try:
+        keyword = current_keywords_frame.get(current_keywords_frame.curselection())
+    except:
+        add_confirmation_label.config(text='Please select keyword to edit', fg='red')
+        return
     with open('keywords.json') as file:
         current_keywords = json.load(file)
     value = current_keywords[keyword][0]
@@ -127,7 +129,24 @@ def edit_keyword():
     elif value_type == 'function':
         function_radio_command()
         value_type_function_radio.select()
-    print(keyword)
+
+def delete_keyword():
+    try:
+        keyword = current_keywords_frame.get(current_keywords_frame.curselection())
+    except:
+        add_confirmation_label.config(text='Please select keyword to delete', fg='red')
+        return
+    filename = 'keywords.json'
+    with open(filename) as file:
+        keywords = json.load(file)
+
+    del keywords[keyword]
+
+    with open(filename, 'w') as file:
+        json.dump(keywords, file)
+
+    update_current_keywords_frame()
+    add_confirmation_label.config(text='Keyword successfully deleted', fg='green')
 
 ### Setup ###
 
@@ -164,19 +183,26 @@ current_keywords_container_frame = tk.Frame(root, height=200, width=200)
 current_keywords_container_frame.grid(row=0, column=2, padx=5, pady=5, sticky='nsew')
 
 current_keywords_label = tk.Label(current_keywords_container_frame, text='Current Keywords', font=header_font)
-current_keywords_label.pack()
+current_keywords_label.grid(row=0,column=0)
 
-current_keywords_frame = tk.Listbox(current_keywords_container_frame, font=text_font, selectmode=tk.SINGLE)
-current_keywords_frame.pack(side="left", fill="y")
+current_keywords_frame = tk.Listbox(current_keywords_container_frame, font=text_font, selectmode=tk.SINGLE, height=15)
+current_keywords_frame.grid(row=1,column=0, pady=10)
 
 recent_keywords_scrollbar = tk.Scrollbar(current_keywords_container_frame, orient="vertical")
 recent_keywords_scrollbar.config(command = current_keywords_frame.yview)
-recent_keywords_scrollbar.pack(side="right", fill="y")
+recent_keywords_scrollbar.grid(row=1,column=1, sticky='nsew')
 
 current_keywords_frame.config(yscrollcommand = recent_keywords_scrollbar.set)
 
-edit_current_keywords_btn = tk.Button(current_keywords_container_frame, text='Edit', font=text_font, command=edit_keyword)
-edit_current_keywords_btn.pack(side="bottom")
+current_keywords_config_frame = tk.Frame(current_keywords_container_frame)
+current_keywords_config_frame.grid(row=2,column=0)
+
+edit_current_keywords_btn = tk.Button(current_keywords_config_frame, text='Edit', font=text_font, command=edit_keyword)
+edit_current_keywords_btn.pack(side='left', padx=5)
+
+delete_current_keywords_btn = tk.Button(current_keywords_config_frame, text='Delete', font=text_font, command=delete_keyword, bg='red', fg='white')
+delete_current_keywords_btn.pack(side='right', padx=5)
+
 
 ### Labels ###
 
@@ -188,7 +214,7 @@ value_type_label = tk.Label(left_frame, text='Choose Value Type', font=header_fo
 ### Inputs ###
 
 new_keyword = tk.Entry(left_frame, font=text_font)
-new_value = tk.Text(right_frame, font=text_font, width=50, height=20)
+new_value = tk.Text(right_frame, font=text_font, width=30, height=17)
 
 ### Buttons ###
 
@@ -217,11 +243,10 @@ create_keyword_btn.grid(row=6,column=0, pady=(10,0), sticky='nsew')
 add_confirmation_label.grid(row=7, column=0, pady=(20,0))
 
 
-right_frame.grid(row=0, column=1, padx=5, pady=5)
-right_frame.visible = False
+right_frame.grid(row=0, column=1, padx=5, pady=5, sticky='nsew')
 
-new_value_label.grid(row=0, column=0, sticky='nsew')
-new_value.grid(row=1, column=0, pady=(10,0))
+new_value_label.grid(row=0, column=0, sticky='n')
+new_value.grid(row=1, column=0, pady=(10,0), sticky='n')
 
 update_current_keywords_frame()
 
