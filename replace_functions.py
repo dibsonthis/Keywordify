@@ -58,6 +58,7 @@ def exec_replace(keyword, function):
         copy_to_clipboard(function)
         delete(keyword)
         paste_text()
+        keyword = keyword.replace('\n','')
         print(f'Cannot execute {keyword} - replacement made instead')
         print(f'Error in function:\n\n{function}')
 

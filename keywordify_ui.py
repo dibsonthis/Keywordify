@@ -94,30 +94,41 @@ def text_radio_command():
     print(value_type_variable.get())
 
 def function_radio_command():
-    new_value.config(bg='black', fg='white', insertbackground='white')
+    new_value.config(bg='#202020', fg='white', insertbackground='white')
     print(value_type_variable.get())
 
 def update_current_keywords_frame():
     # Clears the frame
     for widget in current_keywords_frame.winfo_children():
         widget.destroy()
+    # current_keywords_frame.delete(0,tk.END)
     # Updates frame
     with open('keywords.json') as file:
         current_keywords = json.load(file)
     for current_keyword, value in current_keywords.items():
         if value[1] == "function":
             tk.Button(current_keywords_frame, text=f'{current_keyword}', fg='red', font=text_font, command= lambda current_keyword = current_keyword: edit_keyword(current_keyword)).grid(sticky='nsew')
+            #current_keywords_frame.insert(tk.END, current_keyword)
         elif value[1] == "text":
             tk.Button(current_keywords_frame, text=f'{current_keyword}', fg='blue', font=text_font, command= lambda current_keyword = current_keyword: edit_keyword(current_keyword)).grid(sticky='nsew')
+            #current_keywords_frame.insert(tk.END, current_keyword)
 
 def edit_keyword(keyword):
+    #selected = current_keywords_frame.get(current_keywords_frame.curselection())
     with open('keywords.json') as file:
         current_keywords = json.load(file)
-    value = current_keywords[keyword]
+    value = current_keywords[keyword][0]
+    value_type = current_keywords[keyword][1]
     new_keyword.delete(0,tk.END)
     new_keyword.insert(0,keyword)
     new_value.delete("1.0",tk.END)
     new_value.insert("1.0",value)
+    if value_type == 'text':
+        text_radio_command()
+        value_type_text_radio.select()
+    elif value_type == 'function':
+        function_radio_command()
+        value_type_function_radio.select()
     print(keyword)
 
 ### Setup ###
@@ -151,9 +162,28 @@ left_frame = tk.Frame(root, height=200, width=200)
 
 right_frame = tk.Frame(root, height=200, width=300)
 
-current_keywords_container_frame = tk.Frame(root, height=200, width=200)
+current_keywords_container_frame = tk.Frame(root, height=200)
+current_keywords_container_frame.grid(row=0, column=2, padx=5, pady=5, sticky='nsew')
 
-current_keywords_frame = tk.Frame(current_keywords_container_frame, height=200, width=200)
+current_keywords_label = tk.Label(current_keywords_container_frame, text='Current Keywords', font=header_font)
+current_keywords_label.pack()
+
+current_keywords_canvas = tk.Canvas(current_keywords_container_frame, width=200)
+scroll_y = tk.Scrollbar(current_keywords_container_frame, orient="vertical", command=current_keywords_canvas.yview)
+
+current_keywords_frame = tk.Frame(current_keywords_canvas, width=100)
+# group of widgets
+update_current_keywords_frame()
+# put the frame in the canvas
+current_keywords_canvas.create_window(0, 0, anchor='center', window=current_keywords_frame)
+# make sure everything is displayed before configuring the scrollregion
+current_keywords_canvas.update_idletasks()
+
+current_keywords_canvas.configure(scrollregion=current_keywords_canvas.bbox('all'), 
+                 yscrollcommand=scroll_y.set)
+                 
+current_keywords_canvas.pack(fill='y', side='left', pady=(20,0))
+scroll_y.pack(fill='y', side='right', pady=(20,0))
 
 ### Labels ###
 
@@ -161,7 +191,6 @@ new_keyword_label = tk.Label(left_frame, text='New Keyword', font=header_font)
 new_value_label = tk.Label(right_frame, text='New Keyword Value', font=header_font)
 add_confirmation_label = tk.Label(left_frame, text='', font=alert_font, fg='green')
 value_type_label = tk.Label(left_frame, text='Choose Value Type', font=header_font)
-current_keywords_label = tk.Label(current_keywords_container_frame, text='Current Keywords', font=header_font)
 
 ### Inputs ###
 
@@ -175,6 +204,7 @@ toggle_frame_btn = tk.Button(left_frame, text='Hide Right Frame', font=button_fo
 
 value_type_text_radio = tk.Radiobutton(left_frame, text='Text', variable=value_type_variable, value='text', font=text_font, indicatoron=0, command=text_radio_command)
 value_type_function_radio = tk.Radiobutton(left_frame, text='Function', variable=value_type_variable, value='function', font=text_font, indicatoron=0, command=function_radio_command)
+
 
 ### Layout ###
 
@@ -199,14 +229,6 @@ right_frame.visible = False
 
 new_value_label.grid(row=0, column=0, sticky='nsew')
 new_value.grid(row=1, column=0, pady=(10,0))
-
-
-current_keywords_container_frame.grid(row=0, column=2, padx=5, pady=5, sticky='nsew')
-current_keywords_label.grid(row=0, column=0)
-
-current_keywords_frame.grid(row=1, column=0, padx=5, pady=(20,0))
-
-update_current_keywords_frame()
 
 ### Run Loop ###
 
