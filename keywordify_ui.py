@@ -99,22 +99,20 @@ def function_radio_command():
 
 def update_current_keywords_frame():
     # Clears the frame
-    for widget in current_keywords_frame.winfo_children():
-        widget.destroy()
-    # current_keywords_frame.delete(0,tk.END)
+    current_keywords_frame.delete(0,tk.END)
     # Updates frame
     with open('keywords.json') as file:
         current_keywords = json.load(file)
     for current_keyword, value in current_keywords.items():
         if value[1] == "function":
-            tk.Button(current_keywords_frame, text=f'{current_keyword}', fg='red', font=text_font, command= lambda current_keyword = current_keyword: edit_keyword(current_keyword)).grid(sticky='nsew')
-            #current_keywords_frame.insert(tk.END, current_keyword)
+            # tk.Button(current_keywords_frame, text=f'{current_keyword}', fg='red', font=text_font, command= lambda current_keyword = current_keyword: edit_keyword(current_keyword)).grid(sticky='nsew')
+            current_keywords_frame.insert(tk.END, current_keyword)
         elif value[1] == "text":
-            tk.Button(current_keywords_frame, text=f'{current_keyword}', fg='blue', font=text_font, command= lambda current_keyword = current_keyword: edit_keyword(current_keyword)).grid(sticky='nsew')
-            #current_keywords_frame.insert(tk.END, current_keyword)
+            # tk.Button(current_keywords_frame, text=f'{current_keyword}', fg='blue', font=text_font, command= lambda current_keyword = current_keyword: edit_keyword(current_keyword)).grid(sticky='nsew')
+            current_keywords_frame.insert(tk.END, current_keyword)
 
-def edit_keyword(keyword):
-    #selected = current_keywords_frame.get(current_keywords_frame.curselection())
+def edit_keyword():
+    keyword = current_keywords_frame.get(current_keywords_frame.curselection())
     with open('keywords.json') as file:
         current_keywords = json.load(file)
     value = current_keywords[keyword][0]
@@ -162,28 +160,23 @@ left_frame = tk.Frame(root, height=200, width=200)
 
 right_frame = tk.Frame(root, height=200, width=300)
 
-current_keywords_container_frame = tk.Frame(root, height=200)
+current_keywords_container_frame = tk.Frame(root, height=200, width=200)
 current_keywords_container_frame.grid(row=0, column=2, padx=5, pady=5, sticky='nsew')
 
 current_keywords_label = tk.Label(current_keywords_container_frame, text='Current Keywords', font=header_font)
 current_keywords_label.pack()
 
-current_keywords_canvas = tk.Canvas(current_keywords_container_frame, width=200)
-scroll_y = tk.Scrollbar(current_keywords_container_frame, orient="vertical", command=current_keywords_canvas.yview)
+current_keywords_frame = tk.Listbox(current_keywords_container_frame, font=text_font, selectmode=tk.SINGLE)
+current_keywords_frame.pack(side="left", fill="y")
 
-current_keywords_frame = tk.Frame(current_keywords_canvas, width=100)
-# group of widgets
-update_current_keywords_frame()
-# put the frame in the canvas
-current_keywords_canvas.create_window(0, 0, anchor='center', window=current_keywords_frame)
-# make sure everything is displayed before configuring the scrollregion
-current_keywords_canvas.update_idletasks()
+recent_keywords_scrollbar = tk.Scrollbar(current_keywords_container_frame, orient="vertical")
+recent_keywords_scrollbar.config(command = current_keywords_frame.yview)
+recent_keywords_scrollbar.pack(side="right", fill="y")
 
-current_keywords_canvas.configure(scrollregion=current_keywords_canvas.bbox('all'), 
-                 yscrollcommand=scroll_y.set)
-                 
-current_keywords_canvas.pack(fill='y', side='left', pady=(20,0))
-scroll_y.pack(fill='y', side='right', pady=(20,0))
+current_keywords_frame.config(yscrollcommand = recent_keywords_scrollbar.set)
+
+edit_current_keywords_btn = tk.Button(current_keywords_container_frame, text='Edit', font=text_font, command=edit_keyword)
+edit_current_keywords_btn.pack(side="bottom")
 
 ### Labels ###
 
@@ -229,6 +222,8 @@ right_frame.visible = False
 
 new_value_label.grid(row=0, column=0, sticky='nsew')
 new_value.grid(row=1, column=0, pady=(10,0))
+
+update_current_keywords_frame()
 
 ### Run Loop ###
 
